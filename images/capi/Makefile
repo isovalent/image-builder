@@ -314,6 +314,8 @@ COMMON_POWERVS_VAR_FILES := packer/config/kubernetes.json \
 					packer/config/additional_components.json \
 					packer/config/ecr_credential_provider.json
 
+PACKER_FLAGS += -force
+
 # Initialize a list of flags to pass to Packer. This includes any existing flags
 # specified by PACKER_FLAGS, as well as prefixing the list with the variable
 # files from COMMON_VAR_FILES, with each file prefixed by -var-file=.
