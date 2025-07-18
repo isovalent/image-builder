@@ -104,6 +104,21 @@
       "type": "shell"
     },
     {
+      "inline": [
+        "echo waiting for ssh to not fail to connect",
+        "sleep 20"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "type": "shell-local"
+    },
+    {
+      "inline": [
+        "echo connected to ssh; sleep 5"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "type": "shell"
+    },
+    {
       "ansible_env_vars": [
         "ANSIBLE_SSH_ARGS='{{user `existing_ansible_ssh_args`}} {{user `ansible_common_ssh_args`}}'",
         "KUBEVIRT={{user `kubevirt`}}"
