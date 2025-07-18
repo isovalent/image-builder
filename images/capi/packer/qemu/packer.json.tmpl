@@ -138,6 +138,40 @@
       "user": "builder"
     },
     {
+      "inline": [
+        "sudo mkdir -p /opt/isovalent",
+        "sudo chmod 777 /opt/isovalent"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "type": "shell"
+    },
+    {
+      "type": "file",
+      "source": "{{user `ilb_archive_path`}}",
+      "destination": "/opt/isovalent/isovalent-loadbalancer.tar.xz"
+    },
+    {
+      "inline": [
+        "cd /opt/isovalent",
+        "tar xvf isovalent-loadbalancer.tar.xz",
+        "cd /opt/isovalent",
+        "bash prepare_base.sh",
+        "rm isovalent-loadbalancer.tar.xz",
+        "rm containerimages/*.tar",
+        "sudo chmod 755 /opt/isovalent",
+        "sudo chown -R 1000:1000 /opt/isovalent",
+        "sudo add-apt-repository ppa:canonical-kernel-team/ppa -y",
+        "sudo apt-get update",
+        "sudo apt-get upgrade -yyqq",
+        "sudo apt install -yyqq linux-generic-hwe-24.04-edge",
+        "sudo apt-get clean",
+        "sudo apt-get autoclean",
+        "sudo apt-get autoremove"
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "type": "shell"
+    },
+    {
       "arch": "{{user `goss_arch`}}",
       "format": "{{user `goss_format`}}",
       "format_options": "{{user `goss_format_options`}}",
