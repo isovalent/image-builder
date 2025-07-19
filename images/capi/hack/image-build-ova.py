@@ -57,6 +57,11 @@ def main():
                         default=None,
                         help='Use FILE as VMDK instead of reading from manifest. '
                              'Must be in BUILD_DIR')
+    parser.add_argument('--base_filename',
+                        nargs='?',
+                        metavar='BASE_FILENAME',
+                        default=None,
+                        help='A chosen base filename for the resulting OVA file')
     parser.add_argument(dest='build_dir',
                         nargs='?',
                         metavar='BUILD_DIR',
@@ -178,24 +183,34 @@ def main():
         if build_data['disable_hypervisor'] != "true":
             data['NESTEDHV'] = "true"
 
-    ovf = "%s-%s.ovf" % (build_data['build_name'], data['TYPED_VERSION'])
-    mf = "%s-%s.mf" % (build_data['build_name'], data['TYPED_VERSION'])
-    ova = "%s-%s.ova" % (build_data['build_name'], data['TYPED_VERSION'])
+    filenames = generate_filenames(args.base_filename, build_data['build_name'], data['TYPED_VERSION'])
 
     # Create OVF
-    create_ovf(ovf, data, ovf_template)
+    create_ovf(filenames['ovf'], data, ovf_template)
 
     if os.environ.get("IB_OVFTOOL"):
         # Create the OVA.
-        create_ova(ova, ovf, ovftool_args=os.environ.get("IB_OVFTOOL_ARGS", ""))
+        create_ova(filenames['ova'], filenames['ovf'], ovftool_args=os.environ.get("IB_OVFTOOL_ARGS", ""))
 
     else:
         # Create the OVA manifest.
-        create_ova_manifest(mf, [ovf, vmdk['stream_name']])
+        create_ova_manifest(filenames['mf'], [filenames['ovf'], vmdk['stream_name']])
 
         # Create the OVA
-        create_ova(ova, ovf, ova_files=[mf, vmdk['stream_name']])
+        create_ova(filenames['ova'], filenames['ovf'], ova_files=[filenames['mf'], vmdk['stream_name']])
 
+def generate_filenames(base_filename, build_name, kube_version):
+    filename_base = generate_base_filename(base_filename, build_name, kube_version)
+    return {
+        'ovf': "%s.ovf" % (filename_base,),
+        'mf': "%s.mf" % (filename_base,),
+        'ova': "%s.ova" % (filename_base,),
+    }
+
+def generate_base_filename(base_filename, build_name, kube_version):
+    if not base_filename:
+        return "%s-%s" % (build_name, kube_version)
+    return base_filename
 
 def sha256(path):
     m = hashlib.sha256()
